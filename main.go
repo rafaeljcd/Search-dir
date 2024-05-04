@@ -79,7 +79,8 @@ func readJsonFile(dirPath string) ([]string, error) {
 	if os.IsNotExist(err) {
 		fmt.Println("Config file does not exist")
 		createIfFileNotExist(configPath)
-		return nil, err
+		addSearchPath(dirPath, dirPath)
+		return []string{dirPath}, nil
 	} else if err != nil {
 		fmt.Println("Error:", err)
 		return nil, err
