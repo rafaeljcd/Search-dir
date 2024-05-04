@@ -1,0 +1,117 @@
+name: Ci
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup golang
+        uses: actions/setup-go@v5
+        with:
+          go-version: 1.22
+
+      - name: Build
+        run: go build -o app.exe
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-app
+          path: app.exe
+
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup golang
+        uses: actions/setup-go@v5
+        with:
+          go-version: 1.22
+
+      - name: Build
+        run: go build -o app
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-app
+          path: app
+
+  build-macos:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup golang
+        uses: actions/setup-go@v5
+        with:
+          go-version: 1.22
+
+      - name: Build
+        run: go build -o app
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-app
+          path: app
+
+  Release:
+    depends-on: [build-windows, build-linux, build-macos]
+    runs-on: ubuntu-latest
+    if : github.ref == 'refs/heads/master'
+    steps:
+      - name: Tag Version
+        run: |
+          echo "VERSION_TAG=${{ github.run_number }}" >> $GITHUB_ENV
+
+      - name: Create tag
+        id: create_tag
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const run_tag = `${{ github.run_number }}`;
+            github.rest.git.createRef({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: `refs/tags/${run_tag}`,
+              sha: context.sha
+            })
+      - name: Download windows artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: windows-app
+          path: windows-app
+
+      - name: Download linux artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: linux-app
+          path: linux-app
+
+      - name: Download macos artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: macos-app
+          path: macos-app
+
+      - name: Create release
+        uses: ncipollo/release-action@v1.14.0
+        with:
+          generateReleaseNotes: true
+          artifacts: |
+            windows-app/app.exe
+            linux-app/app
+            macos-app/app
+          tag: ${{ env.VERSION_TAG }}
+          name: 'Search ${{ github.run_number }}'
+          prerelease: false
