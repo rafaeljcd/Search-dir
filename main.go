@@ -12,6 +12,7 @@ import (
 	"strconv"
 	"runtime"
 	"github.com/fatih/color"
+	"bufio"
 )
 
 type Config struct {
@@ -252,9 +253,11 @@ func fetchEntryList(dirList []string) []string {
 
 func searchForEntries(entryList []string) {
 	for {
+		reader := bufio.NewReader(os.Stdin)
 		fmt.Print("Enter the search query or type 'exit' to exit: ")
-		var query string
-		fmt.Scanln(&query)
+
+		query, _ := reader.ReadString('\n')
+		query = strings.TrimSpace(query)
 
 		if query == "exit" || query == "q" {
 			break
@@ -300,6 +303,7 @@ func print_search_result(result string, query string) {
 	lowerQuery := strings.ToLower(query)
 
 	index := strings.Index(lowerEntryPath, lowerQuery)
+
 	beforeSearchTerm := entry_path[:index]
     searchTerm := entry_path[index : index+len(query)]
     afterSearchTerm := entry_path[index+len(query):]
@@ -326,9 +330,11 @@ func clearTerminal() {
 
 func ChooseDirectoryToOpen(searchResultList []string) {
 	for {
+		reader := bufio.NewReader(os.Stdin)
 		fmt.Print("Enter the number of the directory to open or type 'exit' to exit: ")
-		var choice string
-		fmt.Scanln(&choice)
+
+		choice, _ := reader.ReadString('\n')
+		choice = strings.TrimSpace(choice)
 
 		if choice == "exit" || choice == "q" {
 			break
