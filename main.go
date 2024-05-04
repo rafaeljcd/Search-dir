@@ -48,8 +48,13 @@ func main() {
 		fmt.Println("No search directory path found in the config file")
 		return
 	}
-	for _, path := range searchDirPathList {
-		fmt.Println("Search Directory Path:", path)
+
+	fmt.Println("Search Directory Paths:")
+	c1 := color.New(color.FgCyan)
+	c2 := color.New(color.FgGreen)
+	for i, path := range searchDirPathList {
+		c1.Printf("%d. ", i+1)
+		c2.Println(path)
 	}
 
 	entryList := fetchEntryList(searchDirPathList)
@@ -66,8 +71,6 @@ func directoryCall() (string, error) {
 	}
 
 	dirPath := filepath.Dir(exePath)
-
-	fmt.Println("Executable Path:", dirPath)
 
 	return dirPath, nil
 }
