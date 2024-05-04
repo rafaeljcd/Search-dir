@@ -266,6 +266,11 @@ func searchForEntries(entryList []string) {
 		if query == "exit" || query == "q" {
 			break
 		}
+		if query == "" {
+			clearTerminal()
+			fmt.Println("No search query entered")
+			continue
+		}
 
 		searchResultList := []string{}
 		for _, entry := range entryList {
