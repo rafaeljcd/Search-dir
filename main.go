@@ -280,21 +280,25 @@ func searchForEntries(entryList []string) {
 			continue
 		}
 
-		for i, entry := range searchResultList {
+		printOutTheQueryResults(searchResultList, query)
 
-			c1 := color.New(color.FgCyan)
-
-			c1.Printf("%d. ", i+1)
-			print_search_result(entry, query)
-		}
-
-		ChooseDirectoryToOpen(searchResultList)
+		ChooseDirectoryToOpen(searchResultList, query)
 
 		clearTerminal()
 
 
 	}
 	clearTerminal()
+}
+
+func printOutTheQueryResults(searchResultList []string, query string) {
+	for i, entry := range searchResultList {
+
+		c1 := color.New(color.FgCyan)
+
+		c1.Printf("%d. ", i+1)
+		print_search_result(entry, query)
+	}
 }
 
 func print_search_result(result string, query string) {
@@ -332,7 +336,7 @@ func clearTerminal() {
 	}
 }
 
-func ChooseDirectoryToOpen(searchResultList []string) {
+func ChooseDirectoryToOpen(searchResultList []string, query string) {
 	for {
 		reader := bufio.NewReader(os.Stdin)
 		fmt.Print("Enter the number of the directory to open or type 'exit' to exit: ")
@@ -342,6 +346,11 @@ func ChooseDirectoryToOpen(searchResultList []string) {
 
 		if choice == "exit" || choice == "q" {
 			break
+		}
+		if choice == "" {
+			clearTerminal()
+			printOutTheQueryResults(searchResultList, query)
+			continue
 		}
 
 		index, err := strconv.Atoi(choice)
