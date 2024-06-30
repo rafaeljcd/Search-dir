@@ -1,0 +1,122 @@
+name: Ci
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+  workflow_dispatch:
+    inputs:
+
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        runtime:
+          - linux-x64
+          - linux-armv7l
+          - linux-arm64
+          - win-x64
+          - win-arm64
+          - osx-x64
+        include:
+          - runtime: linux-x64
+            os: ubuntu-latest
+
+          - runtime: linux-armv7l
+            os: ubuntu-latest
+
+          - runtime: linux-arm64
+            os: ubuntu-latest
+
+          - runtime: osx-x64
+            os: macOS-latest
+
+          - runtime: win-x64
+            os: windows-latest
+
+          - runtime: win-arm64
+            os: windows-latest
+
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup golang
+        uses: actions/setup-go@v5
+        with:
+          go-version: 1.22
+      
+      - name: Build linux-x64
+        if: startsWith(matrix.os, 'ubuntu') && startsWith(matrix.runtime, 'linux-x64')
+        run: go build -o app
+      
+      - name: Build linux armv7l
+        if: startsWith(matrix.os, 'ubuntu') && startsWith(matrix.runtime, 'linux-armv7l')
+        run: go build -o app
+      
+      - name: Build linux arm64
+        if: startsWith(matrix.os, 'ubuntu') && startsWith(matrix.runtime, 'linux-arm64')
+        run: go build -o app
+      
+      - name: Build Windows x64
+        if: startsWith(matrix.os, 'windows') && startsWith(matrix.runtime, 'win-x64')
+        run: go build -o app.exe
+      
+      - name: Build Windows arm64
+        if: startsWith(matrix.os, 'windows') && startsWith(matrix.runtime, 'win-arm64')
+        run: go build -o app.exe
+      
+      - name: Build Mac x64
+        if: startsWith(matrix.os, 'macos') && startsWith(matrix.runtime, 'osx-x64')
+        run: go build -o app
+      
+      - name: Upload Linux x64 Artifact
+        uses: actions/upload-artifact@v4
+        if: startsWith(matrix.os, 'ubuntu') && startsWith(matrix.runtime, 'linux-x64')
+        with:
+          name: app Linux x64
+          path: app
+          compression-level: 9
+
+      - name: Upload Linux armv7l Artifact
+        uses: actions/upload-artifact@v4
+        if: startsWith(matrix.os, 'ubuntu') && startsWith(matrix.runtime, 'linux-armv7l')
+        with:
+          name: app Linux armv7l
+          path: app
+          compression-level: 9
+
+      - name: Upload Linux arm64 Artifact
+        uses: actions/upload-artifact@v4
+        if: startsWith(matrix.os, 'ubuntu') && startsWith(matrix.runtime, 'linux-arm64')
+        with:
+          name: app Linux arm64
+          path: app
+          compression-level: 9
+      
+      - name: Upload Mac x64 Artifact
+        uses: actions/upload-artifact@v4
+        if: startsWith(matrix.os, 'macos') && startsWith(matrix.runtime, 'osx-x64')
+        with:
+          name: app Mac x64
+          path: app
+          compression-level: 9
+      
+      - name: Upload Windows x64 Artifact
+        uses: actions/upload-artifact@v4
+        if: startsWith(matrix.os, 'windows') && startsWith(matrix.runtime, 'win-x64')
+        with:
+          name: app Win x64
+          path: app.exe
+          compression-level: 9
+      
+      - name: Upload Windows arm64 Artifact
+        uses: actions/upload-artifact@v4
+        if: startsWith(matrix.os, 'windows') && startsWith(matrix.runtime, 'win-arm64')
+        with:
+          name: app Win arm64
+          path: app.exe
+          compression-level: 9
